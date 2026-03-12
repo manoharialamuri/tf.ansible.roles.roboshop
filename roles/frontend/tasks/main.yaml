@@ -1,0 +1,18 @@
+- name: html setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: html_setup.yaml
+
+- name: nginx setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: nginx_setup.yaml
+
+- name: copy nginx
+  throttle: 2
+  ansible.builtin.template:
+    src: nginx.config.j2
+    dest: /etc/nginx/nginx.conf
+  notify: start and enable nginx
+    
+

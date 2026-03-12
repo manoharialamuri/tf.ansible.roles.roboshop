@@ -1,0 +1,32 @@
+# inventory/aws_ec2.yml
+# plugin: amazon.aws.aws_ec2
+# regions:
+# - us-east-1
+# hostnames:
+# - private-ip-address
+# filters:
+#   instance-state-name: running
+#   tag:Name: frontend-dev
+# compose:
+# ansible_host: private_ip_address
+# keyed_groups:
+# - separator: ''
+#   key: tags.component
+
+
+# inventory/aws_ec2.yml for mongodb dyanamically taking private ip address
+plugin: amazon.aws.aws_ec2
+regions:
+- us-east-1
+hostnames:
+- private-ip-address
+filters:
+  instance-state-name: running
+  tag:Name: mongodb-dev
+compose:
+ansible_host: private_ip_address
+keyed_groups:
+- separator: ''
+  key: tags.Name
+  
+

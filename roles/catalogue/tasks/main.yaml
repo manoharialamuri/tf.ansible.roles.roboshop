@@ -1,0 +1,52 @@
+- name: app setup
+  tags:
+  - deployment #usingtags #in import role tags apply to all tasks in app_setup.yaml file
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: app_setup.yaml
+
+- name: nodejs_setup
+  tags:
+  - deployment #usingtags
+  #ansible.builtin.import_role:
+  ansible.builtin.include_role:
+  #in include role tags do not apply to all tasks in nodejs_setup.yaml file if you want to run specific task in nodejs file we have to give it to that particular task
+    name: common
+    tasks_from: nodejs_setup.yaml
+
+- name: systemd_setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: systemd_setup.yaml
+
+- name: copy {{ component }} service 
+  ansible.builtin.template:
+    src: "{{ component }}.service.j2"
+    dest: "/etc/systemd/system/{{ component }}.service"
+    
+
+- name: copy mongo repo
+  ansible.builtin.copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: install mongodb client
+  ansible.builtin.dnf:
+    name: mongodb-mongosh
+    state: present
+
+- name: checking products
+  ansible.builtin.command: mongosh --host "{{ MONGODB_HOST }}" --quiet --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+  register: catalogue_output
+
+- name: loading the products
+  ansible.builtin.shell: mongosh --host "{{ MONGODB_HOST }}" </app/db/master-data.js
+  when: catalogue_output.stdout | int < 0
+
+
+- name: start and enable catalogue
+  ansible.builtin.service:
+    name: catalogue
+    state: restarted
+    enabled: yes
+

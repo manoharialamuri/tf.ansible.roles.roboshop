@@ -1,0 +1,44 @@
+- name: app setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: app_setup.yaml
+
+- name: java setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: java_setup.yaml
+
+- name: renaming
+  ansible.builtin.command: mv target/shipping-1.0.jar shipping.jar 
+  args:
+    chdir: /app
+
+- name: create {{ component }} service
+  ansible.builtin.template:
+    src: "{{ component }}.service.j2"
+    dest: /etc/systemd/system/{{ component }}.service
+
+- name: systemd_setup
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: systemd_setup.yaml
+
+- name: import shipping data
+  community.mysql.mysql_db:
+    state: import
+    name: all
+    login_host: "{{ MYSQL_HOST }}"
+    login_user: root
+    login_password: RoboShop@1
+    target: "{{ item }}"
+  loop:
+  - /app/db/schema.sql
+  - /app/db/app-user.sql 
+  - /app/db/master-data.sql
+
+
+- name: start and enable shipping
+  ansible.builtin.service:
+    name: shipping
+    state: restarted
+    enabled: yes
