@@ -9,4 +9,5 @@ USER_HOST: user-"{{ env }}".daws88s.store
 RABBITMQ_HOST: rabbitmq-"{{ env }}".daws88s.store
 SHIPPING_HOST: shipping-"{{ env }}".daws88s.store
 PAYMENT_HOST: payment-"{{ env }}".daws88s.store
+app_version: v3
 
