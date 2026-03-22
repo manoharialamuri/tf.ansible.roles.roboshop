@@ -1,7 +1,0 @@
-- name: start and enable nginx
-  ansible.builtin.service:
-    name: nginx
-    state: restarted
-    enabled: yes
-
-#this is my frontend playbook first we need to install nginx and next to have to run html config file
